@@ -3,11 +3,22 @@ import sqlite3
 from flask import Flask, jsonify, json, render_template, request, url_for, redirect, flash
 from werkzeug.exceptions import abort
 
+
+# Define the Flask application
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'your secret key'
+
+# Tracks number of connections made to DB
+total_db_cons = 0
+
 # Function to get a database connection.
 # This function connects to database with the name `database.db`
 def get_db_connection():
+    global total_db_cons
     connection = sqlite3.connect('database.db')
     connection.row_factory = sqlite3.Row
+    global total_db_cons
+    total_db_cons += 1
     return connection
 
 # Function to get a post using its ID
@@ -18,9 +29,11 @@ def get_post(post_id):
     connection.close()
     return post
 
-# Define the Flask application
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your secret key'
+def get_all_posts():
+    connection = get_db_connection()
+    posts = connection.execute('SELECT * FROM posts').fetchall()
+    connection.close()
+    return posts
 
 # Define the main route of the web application 
 @app.route('/')
@@ -64,6 +77,26 @@ def create():
             return redirect(url_for('index'))
 
     return render_template('create.html')
+
+@app.route('/healtz')
+def status():
+    response = app.response_class(
+            response=json.dumps({"result":"OK - healthy"}),
+            status=200,
+            mimetype='application/json'
+    )
+    return response
+
+@app.route('/metrics')
+def metrics():
+    num_posts = len(get_all_posts())
+    response = app.response_class(
+            response=json.dumps({"status":"success","code":0,"data":{"db_connctions_count": total_db_cons, "post_count": num_posts}}),
+            status=200,
+            mimetype='application/json'
+    )
+
+    return response
 
 # start the application on port 3111
 if __name__ == "__main__":
