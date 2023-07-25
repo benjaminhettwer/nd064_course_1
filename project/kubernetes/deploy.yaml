@@ -41,7 +41,7 @@ spec:
         livenessProbe:
            httpGet:
              path: /healthz
-             port: 3112
+             port: 3111
         ## Define the rules for the readiness probes.
         ## For example, verify the application on the main route `/`,
         ## on application port 311. If the application is responsive, then traffic will be sent to this pod.
