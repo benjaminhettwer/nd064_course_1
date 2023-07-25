@@ -28,7 +28,7 @@ spec:
         ## In this case, run the `techtrends` application with tag `latest´ and
         ## only pull the image if it's not available on the current host.
       - image: benhe89/techtrends:latest
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         name: techtrends
         ## Expose the port the container is listening on.
         ## For example, exposing the application port 3111 via TCP.
